@@ -1,0 +1,19 @@
+# 독점 SDK 바이너리는 저장소에 커밋하지 않습니다 (실기기 테스트 시 로컬에만 배치)
+dotpad-sdk/DotPadSDK-3.0.0.js
+dotpad-sdk/*.min.js
+
+# OS / editor
+.DS_Store
+Thumbs.db
+*.swp
+.vscode/
+.idea/
+
+# node
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# build/scratch
+dist/
+.cache/

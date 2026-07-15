@@ -1,0 +1,26 @@
+{
+  "id": "hidden-dot",
+  "title": {
+    "ko": "숨은 점 찾기",
+    "en": "Find the Hidden Dot"
+  },
+  "description": {
+    "ko": "손끝으로 다른 촉각 패턴을 찾아 별빛 나무의 다섯 빛을 깨우는 쉬운 촉각 탐색 게임",
+    "en": "An easy tactile exploration game where players find a different dot pattern and restore five lights to the Starlight Tree."
+  },
+  "genre": "tactile-exploration",
+  "difficulty": 1,
+  "durationMinutes": 3,
+  "resolutions": ["60x40"],
+  "entry": "index.html?embed=1&preview=0",
+  "heroImage": "assets/hero-banner-2560x900.jpg",
+  "thumbnail": "assets/card-thumbnail-600x800.jpg",
+  "introductionImage": "assets/game-introduction-web.jpg",
+  "tts": "TW_TTS",
+  "dotPadSdk": "dotpad-sdk/DotPadSDK-3.0.0.js",
+  "languages": ["ko", "en"],
+  "controls": {
+    "keyboard": ["Arrow keys", "Enter", "Space", "H", "R"],
+    "dotPad": ["PanningLeft", "PanningRight", "F1", "F2", "F3", "F4", "PanningAll", "LPF1"]
+  }
+}

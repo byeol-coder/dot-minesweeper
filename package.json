@@ -1,0 +1,15 @@
+{
+  "name": "hidden-dot-game",
+  "version": "1.1.0",
+  "description": "숨은 점 찾기 — 60x40 닷패드용 TTS·촉각 접근성 탐색 게임 (Find the Hidden Dot)",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "python3 -m http.server 8080",
+    "serve": "npx --yes serve@14 -l 8080 .",
+    "check": "node --check src/main.js && node --check tts.js && echo syntax-ok"
+  },
+  "keywords": ["accessibility", "dotpad", "tactile", "tts", "braille", "a11y", "blind", "low-vision", "dot-games"],
+  "license": "MIT",
+  "engines": { "node": ">=18" }
+}
