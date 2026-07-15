@@ -485,11 +485,14 @@ import { ACTION } from "./input/actions.js";
     for (let y = 0; y < 40; y++) {
       for (let x = 0; x < 60; x++) {
         ctx.beginPath();
-        ctx.arc((x + .5) * cellW, (y + .5) * cellH, Math.max(1.1, Math.min(cellW, cellH) * .22), 0, Math.PI * 2);
-        ctx.fillStyle = matrix[y][x] ? "#ffe174" : "#17304c";
+        ctx.arc((x + .5) * cellW, (y + .5) * cellH, Math.max(1.4, Math.min(cellW, cellH) * .34), 0, Math.PI * 2);
+        ctx.fillStyle = matrix[y][x] ? "#fff0a8" : "#1b3b5b";
+        ctx.shadowColor = matrix[y][x] ? "rgba(255, 215, 93, .85)" : "transparent";
+        ctx.shadowBlur = matrix[y][x] ? 5 : 0;
         ctx.fill();
       }
     }
+    ctx.shadowBlur = 0;
     const hex = matrixToHex(matrix);
     $("#hexMeta").textContent = `${hex.length / 2} bytes · ${hex.length} hex`;
     window.__latestDotpadHex = hex;
