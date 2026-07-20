@@ -62,6 +62,7 @@ import { ACTION } from "./input/actions.js";
   ];
 
   const HOME_SCENE_IMAGE = "assets/hero-banner-2560x900.jpg";
+  const NEXT_ICON = '<svg class="scene-next-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>';
 
   const TUTORIAL = [
     {
@@ -250,11 +251,11 @@ import { ACTION } from "./input/actions.js";
     live(message);
   }
 
-  function fillLights(wrap, count) {
+  function fillLights(wrap, count, justWonIndex = -1) {
     wrap.innerHTML = "";
     for (let i = 0; i < STAGES.length; i++) {
       const span = document.createElement("span");
-      span.className = `progress-star${i < count ? " on" : ""}`;
+      span.className = `progress-star${i < count ? " on" : ""}${i === justWonIndex ? " just-won" : ""}`;
       span.textContent = "★";
       span.setAttribute("aria-hidden", "true");
       wrap.appendChild(span);
@@ -426,11 +427,12 @@ import { ACTION } from "./input/actions.js";
     $("#stageDialogKicker").textContent = currentLang === "en" ? "Light found" : "빛 점을 찾았어요";
     $("#stageDialogTitle").textContent = currentLang === "en" ? `${text[1]} is glowing!` : `${text[1]}이 환해졌어요!`;
     $("#stageDialogDesc").textContent = storyText(stage);
-    fillLights($("#stageDialogLights"), state.foundCount);
+    fillLights($("#stageDialogLights"), state.foundCount, state.foundCount - 1);
     const upcoming = STAGES[state.stageIndex + 1];
-    $("#stageDialogNext").textContent = upcoming
+    const nextLabel = upcoming
       ? (currentLang === "en" ? `Next adventure — ${upcoming.en[1]}` : `다음 모험 — ${upcoming.ko[1]}`)
       : (currentLang === "en" ? "Only the final light remains." : "이제 마지막 빛만 남았어요.");
+    $("#stageDialogNext").innerHTML = upcoming ? `${NEXT_ICON}<span>${nextLabel}</span>` : nextLabel;
     $("#nextStageBtn").textContent = state.stageIndex === STAGES.length - 1 ? (currentLang === "en" ? "Wake the tree" : "별빛 나무 깨우기") : COPY.next;
     $("#stageDialog").showModal();
     $("#nextStageBtn").focus();
@@ -456,7 +458,7 @@ import { ACTION } from "./input/actions.js";
   }
 
   function openCompleteDialog() {
-    fillLights($("#completeLights"), STAGES.length);
+    fillLights($("#completeLights"), STAGES.length, STAGES.length - 1);
     $("#completeDialog").showModal();
     $("#playAgainBtn").focus();
     speak(COPY.finish, { assertive: true });
