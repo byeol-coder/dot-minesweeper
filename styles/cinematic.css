@@ -33,6 +33,13 @@
 }
 .hud-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
 
+/* During play, the stage name is already carried by the mission HUD a
+   moment later — repeating the game's brand/title in the corner is
+   pure clutter, so it drops out and the header becomes just the
+   three system controls (voice / DotPad / exit). */
+body.in-game .hud-bar { justify-content: flex-end; }
+body.in-game .brand { display: none; }
+
 /* connection dot inside connect button */
 .connection-dot {
   width: 9px; height: 9px; border-radius: 50%; background: #8493ad;
@@ -51,7 +58,7 @@ main { position: relative; z-index: 1; flex: 1 1 auto; display: flex; min-height
 /* Three zones stacked with unequal weight: the title/mission group
    sits slightly above true center, the CTA/meta group is anchored
    lower — not one long centered column. */
-#homeScreen {
+#homeScreen.active {
   display: grid;
   grid-template-rows: minmax(16px, .72fr) auto minmax(24px, 1fr);
   align-items: start;

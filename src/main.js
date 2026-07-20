@@ -215,6 +215,7 @@ import { ACTION } from "./input/actions.js";
     state.screen = name;
     $("#homeScreen").classList.toggle("active", name === "home");
     $("#gameScreen").classList.toggle("active", name === "game");
+    document.body.classList.toggle("in-game", name === "game");
     if (name === "home") setSceneImage(HOME_SCENE_IMAGE);
     requestAnimationFrame(() => {
       $("#main").focus();
