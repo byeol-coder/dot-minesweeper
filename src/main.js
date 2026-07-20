@@ -784,7 +784,7 @@ import { ACTION } from "./input/actions.js";
     const setLabel = (sel, text) => { const el = $(`${sel} .btn-label`); if (el) el.textContent = text; };
     $("#brandTitle").textContent = "Find the Hidden Dot";
     $("#homeEyebrow").textContent = "Starlight forest tactile adventure";
-    $("#homeTitle").innerHTML = '<span class="hero-title__line">Find the</span><span class="hero-title__line hero-title__line--accent">Hidden Dot</span>';
+    $("#homeTitle").innerHTML = 'Find the <span class="hero-title__accent">Hidden Dot</span>';
     $("#homeLead").textContent = "Find the different light dot by touch and wake the sleeping starlight tree.";
     $("#homeStory").textContent = "A night wind hid five lights from the starlight tree among the forest stones. Explore the dots slowly with Dotty, then confirm the special light pattern.";
     $("#homeMeta").textContent = "Easy difficulty · about 3 min · DotPad and voice guide supported";

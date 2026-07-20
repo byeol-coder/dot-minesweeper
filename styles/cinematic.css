@@ -65,7 +65,7 @@ main { position: relative; z-index: 1; flex: 1 1 auto; display: flex; min-height
 }
 .intro {
   grid-row: 2;
-  max-width: min(640px, 92%);
+  max-width: min(760px, 92%); /* wide enough for the title to sit on one line */
   display: grid;
   gap: clamp(28px, 4.4vh, 44px); /* copy group <-> actions group */
 }
@@ -77,10 +77,13 @@ main { position: relative; z-index: 1; flex: 1 1 auto; display: flex; min-height
   text-shadow: 0 2px 10px rgba(0,0,0,.7);
 }
 .hero-title {
-  max-inline-size: 7.5ch;
+  /* One-line horizontal lockup instead of a tall stacked title — makes
+     better use of the wide scene behind it. text-wrap:balance is kept as
+     a safety net for the rare container narrow enough to still wrap. */
+  max-inline-size: 16ch;
   margin: 0;
   font-family: var(--font-display);
-  font-size: var(--text-display-xl);
+  font-size: clamp(38px, 5vw, 84px);
   font-weight: 830;
   font-stretch: 100%;
   line-height: var(--leading-display);
@@ -90,8 +93,7 @@ main { position: relative; z-index: 1; flex: 1 1 auto; display: flex; min-height
   text-shadow: 0 3px 22px rgba(0,0,0,.68), 0 1px 3px rgba(0,0,0,.6);
   animation: introFade .9s ease both;
 }
-.hero-title__line { display: block; }
-.hero-title__line--accent { color: var(--game-gold); }
+.hero-title__accent { color: var(--game-gold); }
 .intro-lead {
   font-family: var(--font-reading);
   font-size: clamp(22px, 2vw, 30px); line-height: 1.42; font-weight: 720; color: #eef7ff;
