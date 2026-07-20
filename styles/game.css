@@ -238,6 +238,11 @@
       display: grid; gap: clamp(10px, 2.4vw, 34px);
       place-items: center; position: relative; z-index: 2;
     }
+    /* role="row" wrapper around each line of stones: display:contents removes
+       it from the box-generation tree so the buttons still participate
+       directly in #searchBoard's CSS Grid, while the DOM keeps the
+       grid > row > gridcell structure screen readers expect. */
+    .board-row { display: contents; }
     .spot {
       width: clamp(44px, 100%, 92px); aspect-ratio: 1; border: 0; background: none; padding: 0;
       display: grid; place-items: center; cursor: pointer; border-radius: 24px; position: relative;
