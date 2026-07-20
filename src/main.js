@@ -715,9 +715,65 @@ import { ACTION } from "./input/actions.js";
     $("#padStatus").textContent = state.connected ? COPY.connected : (currentLang === "en" ? "Simulator" : "시뮬레이터");
   }
 
+  // ---- DotPad navigation inside open dialogs -------------------------------
+  // The physical DotPad only has F1-F4, Pan Left/Right, Pan All and LPF1 — no
+  // Tab, Enter or Escape. Every dialog (tutorial, stage-clear, ending, help,
+  // tactile preview) is already fully operable by keyboard/mouse, but without
+  // this a DotPad-only player (no keyboard attached) had no way to advance
+  // past "다음 모험" and similar buttons once a dialog opened.
+  function openDialogEl() {
+    return [$("#tutorialDialog"), $("#stageDialog"), $("#completeDialog"), $("#helpDialog"), $("#tactileDialog")].find(d => d.open) || null;
+  }
+  function dialogFocusables(dialog) {
+    return [...dialog.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])')]
+      .filter(el => !el.disabled && el.getClientRects().length > 0);
+  }
+  function dialogControlLabel(el) {
+    return (el.getAttribute("aria-label") || el.textContent || "").trim();
+  }
+  function moveDialogFocus(dialog, dir) {
+    const items = dialogFocusables(dialog);
+    if (!items.length) return;
+    const cur = items.indexOf(document.activeElement);
+    const next = cur === -1 ? (dir > 0 ? 0 : items.length - 1) : (cur + dir + items.length) % items.length;
+    items[next].focus();
+    const label = dialogControlLabel(items[next]);
+    if (label) speak(label);
+  }
+  function activateDialogFocus(dialog) {
+    const el = document.activeElement;
+    if (dialog.contains(el) && typeof el.click === "function") el.click();
+  }
+  function readDialogAloud(dialog) {
+    const title = dialog.querySelector(".dialog-title")?.textContent?.trim() || "";
+    const desc = dialog.querySelector(".dialog-desc, .dialog-hint")?.textContent?.trim() || "";
+    speak([title, desc].filter(Boolean).join(". "));
+  }
+  function closeTopDialog(dialog) {
+    const closeBtn = dialog.querySelector('[id^="close"]');
+    if (closeBtn) closeBtn.click();
+  }
+
   function handleDotPadKey(keyCode) {
     const K = state.keyCodes;
     if (!K) return;
+    const dialog = openDialogEl();
+    if (dialog) {
+      switch (keyCode) {
+        case K.PanningLeft: case K.KeyFunction1: moveDialogFocus(dialog, -1); break;
+        case K.PanningRight: case K.KeyFunction2: moveDialogFocus(dialog, 1); break;
+        case K.KeyFunction3: activateDialogFocus(dialog); break;
+        case K.KeyFunction4: {
+          const el = document.activeElement;
+          const label = dialog.contains(el) ? dialogControlLabel(el) : "";
+          if (label) speak(label); else readDialogAloud(dialog);
+          break;
+        }
+        case K.PanningAll: readDialogAloud(dialog); break;
+        case K.LPF1: closeTopDialog(dialog); break;
+      }
+      return;
+    }
     switch (keyCode) {
       case K.PanningLeft: moveCursor(-1, 0); break;
       case K.PanningRight: moveCursor(1, 0); break;
