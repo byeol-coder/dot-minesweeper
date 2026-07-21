@@ -14,24 +14,19 @@
 
 /* ---- Desktop / laptop: short viewports (e.g. 1366x768) ----
    Width-only breakpoints miss this case: shrink vertical rhythm and
-   the title before anything gets cramped or the story text crowds
-   the CTA off the bottom of a short but wide window. */
+   the title before anything gets cramped near the bottom of a short
+   but wide window. */
 @media (max-height: 780px) and (min-width: 861px) {
   #homeScreen { grid-template-rows: minmax(12px, .6fr) auto minmax(16px, .85fr); }
   .intro { gap: clamp(18px, 3vh, 28px); }
   .hero-title { font-size: clamp(52px, 7.2vh, 78px); }
   .intro-lead { margin-top: clamp(14px, 2vh, 20px); }
-  .intro-story { margin-top: 10px; line-height: 1.55; }
   /* Play screen on short desktops: tighten the panel so the board keeps
      its height — the whole point of the side-panel layout. */
   .quest-head { padding: 12px 16px; }
-  .stage-desc { display: none; }
   .action-bar .btn.act { min-height: 46px; }
   .quest-panel { gap: 10px; }
   .board-help { display: none; }
-}
-@media (max-height: 660px) and (min-width: 861px) {
-  .intro-story { display: none; }
 }
 
 /* ---- Mobile ---- */
@@ -73,7 +68,6 @@
 /* ---- Short mobile viewports (e.g. 430x700 in a browser chrome / embed) ---- */
 @media (max-width: 860px) and (max-height: 700px) {
   .intro { gap: clamp(14px, 2.4vh, 20px); }
-  .intro-story { display: none; }
   .hero-title { font-size: clamp(42px, 11vw, 56px); }
   .scene-particles { opacity: .5; }
 }
@@ -99,7 +93,6 @@
    ============================================================ */
 .embed .viewport { padding-top: 10px; }
 .embed .brand-title { font-size: 16px; }
-.embed .intro-story { display: none; }              /* trim duplicate brand copy */
 .embed #homeMeta { display: none; }
 /* Fit core play area to host frame; avoid double scroll */
 @media (min-width: 861px) {

@@ -241,8 +241,8 @@ import { ACTION } from "./input/actions.js";
     renderStage();
     const text = stageText(stage);
     const intro = currentLang === "en"
-      ? `${text[1]}. ${text[2]} One center dot is ordinary. Five dots in a cross are the hidden light.`
-      : `${text[1]}입니다. ${text[2]} 가운데 한 점은 보통 돌이고, 십자 모양 다섯 점은 숨은 빛이에요.`;
+      ? `${text[1]}. ${text[2]}`
+      : `${text[1]}입니다. ${text[2]}`;
     setStatus(intro);
     speak(intro, { skipAnnounce: true });
   }
@@ -290,10 +290,9 @@ import { ACTION } from "./input/actions.js";
     preloadImage(STAGES[state.stageIndex + 1]?.art);   // warm next scene for a seamless transition
     $("#stageKicker").textContent = text[0];
     $("#stageTitle").textContent = text[1];
-    $("#stageDesc").textContent = text[2];
     $("#instruction").textContent = currentLang === "en"
-      ? "An ordinary stone has one center dot. The hidden light has five dots in a cross."
-      : "보통 돌은 가운데 점 하나, 숨은 빛은 십자 모양 다섯 점입니다.";
+      ? "Plain stone: 1 dot · Hidden light: cross of 5"
+      : "보통 돌 점 1개 · 숨은 빛 십자 5점";
     renderProgress();
     renderBoard();
     renderTechnicalPreview();
@@ -928,11 +927,10 @@ import { ACTION } from "./input/actions.js";
     $("#homeEyebrow").textContent = "Starlight forest tactile adventure";
     $("#homeTitle").innerHTML = 'Find the <span class="hero-title__accent">Hidden Dot</span>';
     $("#homeLead").textContent = "Find the different light dot by touch and wake the sleeping starlight tree.";
-    $("#homeStory").textContent = "A night wind hid five lights from the starlight tree among the forest stones. Explore the dots slowly with Dotty, then confirm the special light pattern.";
     $("#homeMeta").textContent = "Easy difficulty · about 3 min · DotPad and voice guide supported";
     setLabel("#tutorialBtn", "Learn from the beginning");
     setLabel("#quickStartBtn", "Quick start");
-    $("#boardHelp").textContent = "Tap a stone to select it, tap it again to check. You can also move with the arrow keys and press Enter.";
+    $("#boardHelp").textContent = "Tap twice to check · arrows + Enter also work.";
     setLabel("#checkBtn", "Check this spot");
     setLabel("#readBtn", "Listen");
     setLabel("#hintBtn", "Hint");
@@ -943,7 +941,7 @@ import { ACTION } from "./input/actions.js";
     $("#helpTitle").textContent = "Controls";
     $("#tactileTitle").textContent = "Tactile board preview";
     $("#tactileHint").textContent = "This is the 60×40 dot pattern sent to the DotPad. You can feel the same shape by touch without the screen.";
-    $("#instruction").textContent = "An ordinary stone has one center dot. The hidden light has five dots in a cross.";
+    $("#instruction").textContent = "Plain stone: 1 dot · Hidden light: cross of 5";
     // localized control-list labels
     const ctl = document.querySelectorAll("#controlList .control-row span");
     const ctlEn = ["Move selection", "Check position", "Hear position", "Hear full board", "Move up · down", "Hear a hint", "Restart this stage"];

@@ -98,17 +98,10 @@ main { position: relative; z-index: 1; flex: 1 1 auto; display: flex; min-height
 .intro-lead {
   font-family: var(--font-reading);
   font-size: clamp(22px, 2vw, 30px); line-height: 1.42; font-weight: 720; color: #eef7ff;
-  letter-spacing: -.025em; max-width: 23ch; text-wrap: balance;
+  letter-spacing: -.025em; max-width: 30ch; text-wrap: balance;
   margin: clamp(20px, 2.6vh, 32px) 0 0;
   text-shadow: 0 2px 14px rgba(0,0,0,.7);
   animation: introFade 1s ease .1s both;
-}
-.intro-story {
-  font-family: var(--font-reading);
-  color: var(--game-text-secondary); font-size: clamp(15px, 1.1vw, 17px); font-weight: 450;
-  line-height: 1.7; max-width: 42ch; margin: clamp(14px, 1.8vh, 20px) 0 0;
-  text-shadow: 0 1px 10px rgba(0,0,0,.7);
-  animation: introFade 1s ease .2s both;
 }
 .hero-actions { display: grid; gap: clamp(14px, 1.8vh, 18px); animation: introFade 1s ease .3s both; }
 .intro-actions { display: flex; flex-wrap: wrap; gap: 12px; }
@@ -174,13 +167,8 @@ main { position: relative; z-index: 1; flex: 1 1 auto; display: flex; min-height
 .stage-title {
   font-family: var(--font-display);
   font-size: clamp(24px, 2.1vw, 30px); font-weight: 400; letter-spacing: -.01em;
-  margin: 0 0 6px; color: var(--game-text); line-height: 1.14;
+  margin: 0; color: var(--game-text); line-height: 1.14;
   text-shadow: 0 2px 14px rgba(0,0,0,.5);
-}
-.stage-desc {
-  font-family: var(--font-interface);
-  color: var(--game-text-muted); line-height: 1.5; margin: 0;
-  font-size: clamp(13px, 1.05vw, 14.5px); font-weight: 500; letter-spacing: -.005em;
 }
 
 .mission-tools { display: flex; gap: 8px; }
@@ -382,7 +370,9 @@ main { position: relative; z-index: 1; flex: 1 1 auto; display: flex; min-height
    full-width band pushed to the bottom of the screen, far from the play. */
 .quest-panel {
   grid-area: panel;
-  align-self: start; /* hug content — no stretched card with a void between actions and footer */
+  align-self: end; /* bottom-anchored: with less copy the card is shorter than
+    its row track, so pin it to match the board's bottom edge rather than
+    floating at the top with open scene showing beneath it */
   min-height: 0; max-height: 100%;
   display: flex; flex-direction: column; gap: clamp(12px, 1.8vh, 16px);
   padding: clamp(14px, 1.8vh, 18px) clamp(14px, 1.5vw, 18px);

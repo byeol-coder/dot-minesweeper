@@ -66,13 +66,12 @@
 
   <main id="main" tabindex="-1">
     <!-- ============================ INTRO ============================ -->
-    <section id="homeScreen" class="screen active" aria-labelledby="homeTitle" aria-describedby="homeLead homeStory">
+    <section id="homeScreen" class="screen active" aria-labelledby="homeTitle" aria-describedby="homeLead">
       <div class="intro">
         <div class="hero-copy">
           <p class="eyebrow" id="homeEyebrow">별빛 숲 촉각 어드벤처</p>
           <h1 class="hero-title" id="homeTitle">숨은 점 <span class="hero-title__accent">찾기</span></h1>
           <p class="intro-lead" id="homeLead">손끝으로 다른 모양의 빛 점을 찾아, 잠든 별빛 나무를 깨워주세요.</p>
-          <p class="intro-story" id="homeStory">밤바람이 별빛 나무의 빛 다섯 개를 숲속 돌 사이에 숨겼어요. 안내 친구 도티와 함께 점을 만지고, 특별한 빛을 찾아주세요.</p>
         </div>
         <div class="hero-actions">
           <div class="intro-actions">
@@ -100,7 +99,6 @@
             <ul class="journey-progress" id="progressStars" aria-label="모은 빛 0개"></ul>
           </div>
           <h2 class="stage-title" id="stageTitle">반딧불 풀밭</h2>
-          <p class="stage-desc" id="stageDesc">네 개의 돌 가운데 숨어 있는 빛 점을 찾아보세요.</p>
         </header>
 
         <!-- Play area: the board owns the screen -->
@@ -108,7 +106,7 @@
           <div class="board-shell" id="boardShell">
             <div id="searchBoard" class="search-board" role="grid" aria-label="숨은 점 찾기 촉각 보드"></div>
           </div>
-          <p class="instruction" id="instruction">보통 돌은 가운데 점 하나, 숨은 빛은 십자 모양 다섯 점입니다.</p>
+          <p class="instruction" id="instruction">보통 돌 점 1개 · 숨은 빛 십자 5점</p>
         </div>
 
         <!-- Quest panel: Dotty's guidance + actions + utilities in one column -->
@@ -142,7 +140,7 @@
             </div>
           </div>
           <div class="quest-foot">
-            <p class="board-help" id="boardHelp">돌을 누르면 선택, 한 번 더 누르면 확인돼요. 화살표로 이동, Enter로 확인할 수도 있어요.</p>
+            <p class="board-help" id="boardHelp">두 번 누르면 확인 · 화살표 + Enter도 가능해요.</p>
             <div class="mission-tools">
               <button class="icon-btn" id="helpBtn" type="button" aria-haspopup="dialog">
                 <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 9a2.8 2.8 0 115.3 1.2c-.5 1-1.7 1.4-2.2 2.2-.2.3-.3.7-.3 1.1M12 17.5h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
