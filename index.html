@@ -94,11 +94,11 @@
       <div class="stage" id="gameScene" data-stage="firefly-meadow">
         <!-- Stage header: where am I + journey progress -->
         <header class="quest-head">
-          <div class="quest-head-row">
+          <div class="stage-identity">
             <p class="stage-kicker" id="stageKicker">첫 번째 빛</p>
-            <ul class="journey-progress" id="progressStars" aria-label="모은 빛 0개"></ul>
+            <h2 class="stage-title" id="stageTitle">반딧불 풀밭</h2>
           </div>
-          <h2 class="stage-title" id="stageTitle">반딧불 풀밭</h2>
+          <ul class="journey-progress" id="progressStars" aria-label="모은 빛 0개"></ul>
         </header>
 
         <!-- Play area: the board owns the screen -->
@@ -109,7 +109,7 @@
           <p class="instruction" id="instruction">보통 돌 점 1개 · 숨은 빛 십자 5점</p>
         </div>
 
-        <!-- Quest panel: Dotty's guidance + actions + utilities in one column -->
+        <!-- Action dock: one current cue, one primary action; optional tools stay folded away. -->
         <aside class="quest-panel" aria-label="도티 안내와 게임 조작">
           <div class="dotty-ribbon">
             <span class="dotty-avatar" aria-hidden="true"></span>
@@ -121,6 +121,9 @@
               <span class="btn-label">이곳 확인</span>
               <kbd class="btn-key">Enter</kbd>
             </button>
+          </div>
+          <details class="utility-dock">
+            <summary>보조 조작</summary>
             <div class="quick-row" role="group" aria-label="보조 조작">
               <button class="mini-btn" id="readBtn" type="button">
                 <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM16 8a5 5 0 010 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -138,8 +141,7 @@
                 <kbd class="btn-key">R</kbd>
               </button>
             </div>
-          </div>
-          <div class="quest-foot">
+            <div class="quest-foot">
             <p class="board-help" id="boardHelp">두 번 누르면 확인 · 화살표 + Enter도 가능해요.</p>
             <div class="mission-tools">
               <button class="icon-btn" id="helpBtn" type="button" aria-haspopup="dialog">
@@ -151,7 +153,8 @@
                 <span class="btn-label sr-only">촉각판 보기</span>
               </button>
             </div>
-          </div>
+            </div>
+          </details>
         </aside>
       </div>
     </section>
