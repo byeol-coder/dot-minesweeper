@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5" />
+<title>닷 지뢰찾기</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.14.0/dist/tabler-icons.min.css" />
+<style>
+  :root{
+    --dot-orange:#C43D00; --dot-orange-soft:#E85A1A;
+    --bg:#F7F4EF; --panel:#FBF9F5; --ink:#241B14; --ink-soft:#6B5D50; --line:#E4DCD1;
+    --ok:#2E7D32; --danger:#B3261E;
+    --pin-up:#211d16; --pin-down:#d9d3c6;   /* dotbattle 미리보기 톤과 일치 */
+    --radius:14px;
+    --focus:0 0 0 3px var(--bg), 0 0 0 6px var(--dot-orange);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#1A1510; --panel:#231C15; --ink:#F3ECE2; --ink-soft:#B3A392; --line:#3A2F24;
+           --dot-orange:#FF7A1A; --pin-up:#F3B24B; --pin-down:#3A3128; }
+  }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; }
+  body{ font-family:"Pretendard Variable",Pretendard,system-ui,sans-serif; background:var(--bg); color:var(--ink);
+    -webkit-font-smoothing:antialiased; min-height:100dvh; }
+  .wrap{ max-width:560px; margin:0 auto; padding:18px 16px 36px; }
+  header.hd{ display:flex; align-items:center; gap:12px; margin-bottom:12px; }
+  .logo-dot{ width:34px; height:34px; border-radius:9px; background:var(--dot-orange);
+    display:grid; place-items:center; color:#fff; flex:0 0 auto; }
+  .logo-dot i{ font-size:22px; }
+  h1{ font-size:20px; letter-spacing:-.02em; margin:0; font-weight:800; }
+  .sub{ font-size:12.5px; color:var(--ink-soft); margin:1px 0 0; }
+  body.embed .sub{ display:none; }
+
+  /* HUD */
+  .hud{ display:flex; gap:10px; margin:12px 0; }
+  .stat{ flex:1; background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:9px 12px; }
+  .stat .lbl{ font-size:11px; color:var(--ink-soft); font-weight:600; }
+  .stat .val{ font-size:21px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.02em;
+    display:flex; align-items:center; gap:6px; margin-top:1px; }
+  .stat .val i{ font-size:17px; color:var(--dot-orange); }
+
+  .statusbar{ background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:10px 13px;
+    font-size:13.5px; font-weight:600; margin-bottom:12px; min-height:20px; }
+  .statusbar[data-phase="lose"]{ color:var(--danger); }
+  .statusbar[data-phase="win"]{ color:var(--ok); }
+
+  /* 격자(화면) — 10×5, 좌표 라벨 포함 */
+  .boardwrap{ display:grid; grid-template-columns:auto 1fr; grid-template-rows:auto 1fr; gap:6px; align-items:center; }
+  #colLabels{ grid-column:2; display:grid; grid-template-columns:repeat(6,1fr); gap:5px; }
+  #colLabels span{ text-align:center; font-size:10.5px; color:var(--ink-soft); font-weight:700; font-variant-numeric:tabular-nums; }
+  #rowLabels{ grid-row:2; display:grid; grid-template-rows:repeat(5,1fr); gap:5px; }
+  #rowLabels span{ display:grid; place-items:center; font-size:10.5px; color:var(--ink-soft); font-weight:700; }
+  #board{ grid-column:2; grid-row:2; display:grid; grid-template-columns:repeat(6,1fr);
+    grid-auto-rows:1fr; gap:5px; }
+  .cell{ aspect-ratio:10/8; border:1px solid var(--line); background:var(--panel); border-radius:7px;
+    cursor:pointer; padding:0; display:grid; place-items:center; font-size:15px; font-weight:800;
+    color:var(--ink); font-family:inherit; position:relative;
+    transition:background .1s ease, transform .06s ease, box-shadow .1s ease; }
+  .cell:hover:not(:disabled){ background:#fff; }
+  @media (prefers-color-scheme:dark){ .cell:hover:not(:disabled){ background:#2C2419; } }
+  .cell.revealed{ background:transparent; border-color:transparent; }
+  .cell.flag{ color:var(--dot-orange); }
+  .cell.mine{ background:var(--danger); color:#fff; border-color:var(--danger); }
+  .cell.cursor{ box-shadow:var(--focus); transform:scale(1.06); z-index:2; }
+  .cell:focus-visible{ outline:none; box-shadow:var(--focus); }
+  .cell:disabled{ cursor:default; }
+  .n1{color:#1565C0}.n2{color:#2E7D32}.n3{color:#C43D00}.n4{color:#6A1B9A}
+  .n5{color:#AD1457}.n6{color:#00838F}.n7{color:#37474F}.n8{color:#5D4037}
+  @media (prefers-color-scheme:dark){ .n1{color:#64B5F6}.n2{color:#81C784}.n3{color:#FF8A65}.n4{color:#CE93D8}.n5{color:#F48FB1}.n6{color:#4DD0E1}.n7{color:#B0BEC5}.n8{color:#BCAAA4} }
+
+  /* 컨트롤 */
+  .controls{ display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; align-items:center; }
+  .btn{ appearance:none; border:1px solid var(--line); background:var(--panel); color:var(--ink);
+    border-radius:12px; min-height:48px; padding:0 14px; font-size:14px; font-weight:700; cursor:pointer;
+    display:inline-flex; align-items:center; justify-content:center; gap:7px; font-family:inherit;
+    transition:transform .05s ease, background .1s ease; }
+  .btn i{ font-size:19px; }
+  .btn:hover{ background:#fff; } @media (prefers-color-scheme:dark){ .btn:hover{ background:#2C2419; } }
+  .btn:active{ transform:translateY(1px); }
+  .btn:focus-visible{ outline:none; box-shadow:var(--focus); }
+  .btn.primary{ background:var(--dot-orange); border-color:var(--dot-orange); color:#fff; flex:1; }
+  .btn.primary:hover{ background:var(--dot-orange-soft); }
+  .btn.icon{ width:48px; padding:0; }
+  .btn[data-on="1"]{ border-color:var(--dot-orange); color:var(--dot-orange); }
+  select{ font-family:inherit; font-size:13.5px; font-weight:700; padding:0 10px; min-height:48px;
+    border:1px solid var(--line); border-radius:12px; background:var(--panel); color:var(--ink); }
+
+  /* 핀 미리보기 */
+  #pinwrap{ display:none; margin-top:14px; background:#2A231C; border-radius:16px; padding:14px; }
+  #pinwrap.show{ display:block; }
+  #pin{ width:100%; display:block; }
+  .caption{ color:#C9BBA9; font-size:11px; text-align:center; margin-top:8px; }
+
+  .help{ font-size:12.5px; color:var(--ink-soft); line-height:1.7; margin-top:14px;
+    background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px 14px; }
+  .help b{ color:var(--ink); }
+  .help kbd{ font-family:inherit; background:var(--bg); border:1px solid var(--line); border-radius:6px;
+    padding:1px 6px; font-size:11.5px; font-weight:700; }
+  .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
+  @media (prefers-reduced-motion: reduce){ *{ transition:none!important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hd">
+    <span class="logo-dot" aria-hidden="true"><i class="ti ti-grid-dots"></i></span>
+    <div>
+      <h1>닷 지뢰찾기</h1>
+      <p class="sub">DotPad 60×40 촉각 지뢰찾기 · 슈퍼닷 음성 안내</p>
+    </div>
+  </header>
+
+  <div class="hud" role="group" aria-label="게임 상태">
+    <div class="stat"><span class="lbl">남은 지뢰</span>
+      <span class="val"><i class="ti ti-flag-3" aria-hidden="true"></i><span id="mineN">6</span></span></div>
+    <div class="stat"><span class="lbl">경과 시간</span>
+      <span class="val"><i class="ti ti-clock" aria-hidden="true"></i><span id="timeN">0</span>초</span></div>
+    <div class="stat"><span class="lbl">진행</span>
+      <span class="val" style="font-size:15px;"><i class="ti ti-target" aria-hidden="true"></i><span id="progN">0/24</span></span></div>
+  </div>
+
+  <div class="statusbar" id="status" data-phase="play"><span id="statusText">새 게임. 방향키로 옮기고 F1로 여세요.</span></div>
+
+  <div class="boardwrap">
+    <div id="colLabels" aria-hidden="true"></div>
+    <div id="rowLabels" aria-hidden="true"></div>
+    <div id="board" role="application" aria-label="지뢰찾기 격자, 가로 6칸 세로 5칸. 방향키로 이동, 엔터 열기, F로 깃발."></div>
+  </div>
+
+  <div class="sr-only" role="status" aria-live="polite" id="live"></div>
+
+  <div class="controls">
+    <button class="btn primary" id="openBtn"><i class="ti ti-hand-finger"></i>열기</button>
+    <button class="btn" id="flagBtn" style="flex:1;"><i class="ti ti-flag-3"></i>깃발</button>
+  </div>
+  <div class="controls">
+    <button class="btn" id="newBtn"><i class="ti ti-refresh"></i>새 게임</button>
+    <label class="sr-only" for="diff">난이도</label>
+    <select id="diff" aria-label="난이도">
+      <option value="4">쉬움 · 지뢰 4</option>
+      <option value="6" selected>보통 · 지뢰 6</option>
+      <option value="8">어려움 · 지뢰 8</option>
+    </select>
+    <button class="btn" id="dpBtn"><i class="ti ti-bluetooth"></i><span id="dpLbl">닷패드 연결</span></button>
+    <button class="btn icon" id="sound" aria-pressed="true" aria-label="음성 켜짐, 누르면 끔"><i class="ti ti-volume"></i></button>
+    <button class="btn icon" id="pinToggle" aria-pressed="false" aria-label="핀 미리보기 보기"><i class="ti ti-eye"></i></button>
+  </div>
+
+  <div id="pinwrap">
+    <canvas id="pin" aria-hidden="true"></canvas>
+    <p class="caption">DotPad 60×40 핀 출력 미리보기</p>
+  </div>
+
+  <div class="help">
+    <b>화면·키보드</b> — <kbd>방향키</kbd> 이동 · <kbd>Enter</kbd> 열기 · <kbd>F</kbd> 깃발 · <kbd>C</kbd> 현재 칸 · <kbd>R</kbd> 현황 · <kbd>B</kbd> 판 읽기 · <kbd>H</kbd> 도움말 · <kbd>N</kbd> 새 게임<br>
+    <b>DotPad</b> — Panning 이동 · F1 열기 · F2 깃발 · F3 현재 칸 · F4 판 읽기 · PanningAll 도움말 · LPF1 새 게임<br>
+    <b>촉각</b> — 미공개=사각 테두리, 숫자=점 개수, 깃발=가운데 점, 지뢰=칸 채움, 커서=칸 안쪽 사각. 남은 지뢰 수는 점자 숫자.
+  </div>
+</div>
+
+<script src="./tts.js"></script>
+<script>
+(function(){
+  "use strict";
+  /* ===== 상수 (60×40 불변식) ===== */
+  const N=60, M=40;            // 핀 해상도
+  const COLS=6, ROWS=5;        // 격자
+  const CW=10, CH=8;           // 칸당 핀 (6*10=60, 5*8=40) — dotbattle 셀 크기와 동급, 촉각 판독성 확보
+  const TOTAL=COLS*ROWS;       // 30칸
+  const B_NUM=0x3C, B_SP=0x00,
+        B_DIG={'0':0x35,'1':0x01,'2':0x03,'3':0x09,'4':0x19,'5':0x11,'6':0x0B,'7':0x1B,'8':0x13,'9':0x0A};
+
+  /* ===== 상태 ===== */
+  let mineN=6, mines, count, revealed, flagged;
+  let cursor=0, over=false, won=false, firstDone=false, soundOn=true, mineLeft=6;
+  let startTs=null, timerId=null;
+  let sdk=null, scanner=null, KeyCodes=null, DataCodes=null, dpConnected=false;
+
+  const params=new URLSearchParams(location.search);
+  const EMBED = params.get('embed')==='1';
+  if(EMBED) document.body.classList.add('embed');
+
+  const boardEl=document.getElementById('board');
+  const statusEl=document.getElementById('status'), statusText=document.getElementById('statusText');
+  const liveEl=document.getElementById('live');
+  const diffSel=document.getElementById('diff');
+  const soundBtn=document.getElementById('sound'), dpBtn=document.getElementById('dpBtn');
+  const pinToggle=document.getElementById('pinToggle'), pinwrap=document.getElementById('pinwrap');
+  const pin=document.getElementById('pin'), pctx=pin.getContext('2d');
+  const cellBtns=[];
+
+  const rc=(i)=>[(i/COLS|0),(i%COLS)];
+  const idx=(r,c)=>r*COLS+c;
+  const coord=(i)=>{const[r,c]=rc(i);return (r+1)+'행 '+(c+1)+'열';};
+  const safeArea=()=>TOTAL-mineN;
+
+  // speak: 게임 음성(TW_TTS)만. 커서 이동은 버튼 포커스 라벨이 스크린리더를 담당 → speak 사용(라이브 영역 미갱신, 중복 낭독 방지).
+  function speak(t){ if(soundOn && window.TW_TTS) TW_TTS.speak(t); }
+  // announce: 포커스가 이동하지 않는 이벤트(열기 결과·깃발·현황·판 읽기·상태) → 라이브 영역(polite) + 게임 음성.
+  function announce(t){ liveEl.textContent=t; speak(t); }
+  if(window.TW_TTS){ try{ TW_TTS.setLang('ko'); }catch(e){} }
+
+  /* ===== 이웃 ===== */
+  function forNb(i,fn){ const[r,c]=rc(i);
+    for(let dr=-1;dr<=1;dr++)for(let dc=-1;dc<=1;dc++){ if(!dr&&!dc)continue;
+      const nr=r+dr,nc=c+dc; if(nr>=0&&nr<ROWS&&nc>=0&&nc<COLS) fn(idx(nr,nc)); } }
+
+  /* ===== 지뢰 배치 (첫 열기 3×3 안전) ===== */
+  function place(safeI){
+    mines=new Array(TOTAL).fill(false);
+    count=new Array(TOTAL).fill(0);
+    const forbidden=new Set([safeI]); forNb(safeI,j=>forbidden.add(j));
+    let placed=0;
+    while(placed<mineN){ const i=(Math.random()*TOTAL)|0;
+      if(mines[i]||forbidden.has(i))continue; mines[i]=true; placed++; }
+    for(let i=0;i<TOTAL;i++){ if(mines[i])continue; let n=0; forNb(i,j=>{if(mines[j])n++;}); count[i]=n; }
+    firstDone=true;
+  }
+
+  /* ===== 액션 ===== */
+  function openAt(i){
+    if(over||won) return;
+    if(flagged[i]){ announce(coord(i)+', 깃발이 있어요. F로 먼저 해제하세요.'); return; }
+    if(revealed[i]){ readCell(); return; }
+    if(!firstDone){ place(i); startTimer(); }
+    if(mines[i]){ revealed[i]=true; over=true; for(let k=0;k<TOTAL;k++) if(mines[k]) revealed[k]=true;
+      stopTimer(); render();
+      setStatus('지뢰를 밟았어요. F1이나 새 게임으로 다시 시작하세요.','lose');
+      padPulse(); postMsg('gameover',{win:false,time:elapsed()}); return; }
+    flood(i); render();
+    const n=count[i];
+    announce(coord(i)+', '+(n===0?'빈 칸. 주변이 안전해 여러 칸이 열렸어요.':'숫자 '+n+', 주변 지뢰 '+n+'개.'));
+    checkWin();
+  }
+  function flood(i){ const st=[i];
+    while(st.length){ const j=st.pop(); if(revealed[j]||flagged[j])continue; revealed[j]=true;
+      if(count[j]===0) forNb(j,k=>{ if(!revealed[k]) st.push(k); }); } }
+
+  function toggleFlag(i){
+    if(over||won) return;
+    if(revealed[i]){ announce(coord(i)+', 이미 열린 칸이에요.'); return; }
+    flagged[i]=!flagged[i]; mineLeft+=flagged[i]?-1:1; updateHud(); render();
+    announce(coord(i)+', 깃발 '+(flagged[i]?'표시':'해제')+'. 남은 지뢰 '+mineLeft+'개.');
+    checkWin();
+  }
+  function checkWin(){
+    if(!firstDone) return;
+    let left=0; for(let i=0;i<TOTAL;i++) if(!mines[i]&&!revealed[i]) left++;
+    if(left===0){ won=true; stopTimer();
+      for(let i=0;i<TOTAL;i++) if(mines[i]&&!flagged[i]) flagged[i]=true;
+      mineLeft=0; updateHud(); render();
+      setStatus('성공! 모든 안전한 칸을 열었어요. '+elapsed()+'초 걸렸어요.','win');
+      padPulse(); postMsg('gameover',{win:true,time:elapsed()}); }
+  }
+
+  /* ===== 이동 · 읽기 ===== */
+  function moveCursor(dr,dc){ const[r0,c0]=rc(cursor);
+    let r=Math.max(0,Math.min(ROWS-1,r0+dr)), c=Math.max(0,Math.min(COLS-1,c0+dc));
+    if(r===r0&&c===c0){ const edge=dr<0?'맨 위 줄이에요.':dr>0?'맨 아래 줄이에요.':dc<0?'맨 왼쪽이에요.':'맨 오른쪽이에요.';
+      announce(edge+' '+coord(cursor)+', '+cellName(cursor)+'.'); return; }
+    cursor=idx(r,c); sync(); speak(coord(cursor)+', '+cellName(cursor)+'.'); }
+  function panMove(step){ cursor=Math.max(0,Math.min(TOTAL-1,cursor+step)); sync();
+    speak(coord(cursor)+', '+cellName(cursor)+'.'); }
+
+  function cellName(i){ if(flagged[i]) return '깃발';
+    if(!revealed[i]) return '미공개';
+    if(mines[i]) return '지뢰';
+    return count[i]===0?'빈 칸':('숫자 '+count[i]); }
+  function readCell(){ announce(coord(cursor)+', '+cellName(cursor)+'.'); }
+  function readStatus(){ announce('남은 지뢰 '+mineLeft+'개. 경과 '+elapsed()+'초. '+
+    '연 칸 '+openedCount()+'개, 남은 안전 칸 '+(safeArea()-openedCount())+'개.'); }
+  function openedCount(){ let n=0; for(let i=0;i<TOTAL;i++) if(revealed[i]&&!mines[i]) n++; return n; }
+  function readBoard(){ let out='판 상태입니다. ';
+    for(let r=0;r<ROWS;r++){ const row=[]; for(let c=0;c<COLS;c++) row.push(cellName(idx(r,c)));
+      out+=(r+1)+'행, '+row.join(', ')+'. '; }
+    announce(out); }
+  function help(){ announce('닷 지뢰찾기. 가로 6칸, 세로 5칸이에요. 지뢰 '+mineN+'개를 피해 안전한 칸을 모두 여세요. '+
+    '방향키나 패닝으로 옮기면 위치와 상태를 알려줘요. 엔터나 F1로 열고, F로 깃발을 표시해요. '+
+    '숫자는 그 칸에 닿은 지뢰 개수예요. 첫 열기는 항상 안전합니다. '+
+    '언제든 C 현재 칸, R 현황, B 판 읽기, H 도움말, N 새 게임.'); }
+
+  /* ===== 촉각 프레임 ===== */
+  function buildFrame(){
+    const g=Array.from({length:M},()=>new Uint8Array(N));
+    const set=(x,y)=>{x=Math.round(x);y=Math.round(y);if(x>=0&&x<N&&y>=0&&y<M)g[y][x]=1;};
+    for(let c=0;c<=COLS;c++){const x=Math.min(c*CW,N-1);for(let y=0;y<M;y++)set(x,y);}   // 세로선
+    for(let r=0;r<=ROWS;r++){const y=Math.min(r*CH,M-1);for(let x=0;x<N;x++)set(x,y);}   // 가로선
+    const ring=(x0,y0,x1,y1,ins)=>{ for(let x=x0+ins;x<=x1-ins;x++){set(x,y0+ins);set(x,y1-ins);}
+      for(let y=y0+ins;y<=y1-ins;y++){set(x0+ins,y);set(x1-ins,y);} };
+    // 숫자 점 위치 (2열 × 4행). 커서 링(인셋2: 2·7열, 2·5행)과 핀이 겹치지 않도록 3·6열 / 1·3·4·6행에 배치
+    const dotPos=(x0,y0)=>[[x0+3,y0+1],[x0+6,y0+1],[x0+3,y0+3],[x0+6,y0+3],[x0+3,y0+4],[x0+6,y0+4],[x0+3,y0+6],[x0+6,y0+6]];
+    for(let i=0;i<TOTAL;i++){ const[r,c]=rc(i); const x0=c*CW,y0=r*CH,x1=x0+CW-1,y1=y0+CH-1;
+      if(flagged[i]){ set(x0+4,y0+3);set(x0+5,y0+3);set(x0+4,y0+4);set(x0+5,y0+4); }            // 깃발: 가운데 2×2 점
+      else if(!revealed[i]){ ring(x0,y0,x1,y1,1); }                                             // 미공개: 안쪽 사각(속 빔)
+      else if(mines[i]){ for(let y=y0+1;y<=y1-1;y++)for(let x=x0+1;x<=x1-1;x++)set(x,y); }       // 지뢰: 칸 채움(꽉 참)
+      else if(count[i]>0){ const P=dotPos(x0,y0); for(let k=0;k<count[i]&&k<8;k++)set(P[k][0],P[k][1]); } // 숫자: 점 개수
+      // 빈 칸(0): 격자선만
+      if(i===cursor){ ring(x0,y0,x1,y1,2); }                                                    // 커서: 더 안쪽 사각(미공개와 겹쳐도 속이 비어 지뢰와 구분)
+    }
+    return g;
+  }
+  const EA=[[0,0],[0,1],[0,2],[0,3],[1,0],[1,1],[1,2],[1,3]];
+  function encodeFrame(g){let h='';for(let s=0;s<10;s++)for(let n=0;n<30;n++){let b=0;
+    for(let m=0;m<8;m++){const u=EA[m][0],p=EA[m][1];if(g[s*4+p][n*2+u])b|=(1<<m);}h+=(b<16?'0':'')+b.toString(16);}return h;}
+  function brailleLine(){ const digs=String(mineLeft).split(''); const by=[B_NUM];
+    for(const d of digs) by.push(B_DIG[d]!=null?B_DIG[d]:B_SP);
+    while(by.length<20)by.push(B_SP); return by.slice(0,20).map(b=>(b<16?'0':'')+b.toString(16)).join(''); }
+  function drawPin(){ if(!pinwrap.classList.contains('show'))return;
+    const W=pin.clientWidth||300, gap=W/N, cssH=gap*M, dpr=window.devicePixelRatio||1, frame=buildFrame();
+    pin.style.height=cssH+'px'; pin.width=Math.round(W*dpr); pin.height=Math.round(cssH*dpr);
+    pctx.setTransform(dpr,0,0,dpr,0,0); pctx.clearRect(0,0,W,cssH);
+    const on=getComputedStyle(document.documentElement).getPropertyValue('--pin-up').trim()||'#211d16';
+    const off=getComputedStyle(document.documentElement).getPropertyValue('--pin-down').trim()||'#d9d3c6';
+    const rOn=gap*0.34, rOff=gap*0.13;
+    for(let y=0;y<M;y++)for(let x=0;x<N;x++){ const px=x*gap+gap/2, py=y*gap+gap/2;
+      pctx.fillStyle=frame[y][x]?on:off; pctx.beginPath(); pctx.arc(px,py,frame[y][x]?rOn:rOff,0,6.2832); pctx.fill(); } }
+  function renderPad(){ if(pinwrap.classList.contains('show')) drawPin();
+    if(!dpConnected||!sdk)return; try{ sdk.displayGraphicData(encodeFrame(buildFrame())); sdk.displayTextData(brailleLine()); }catch(e){} }
+
+  /* ===== 화면 격자 ===== */
+  function buildCells(){ boardEl.innerHTML='';
+    for(let i=0;i<TOTAL;i++){ const b=document.createElement('button'); b.className='cell'; b.type='button'; b.dataset.i=i;
+      b.addEventListener('click',()=>{ if(over||won){ newGame(); return; } cursor=i; sync(false); openAt(i); });
+      b.addEventListener('contextmenu',(e)=>{ e.preventDefault(); cursor=i; sync(false); toggleFlag(i); });
+      b.addEventListener('focus',()=>{ cursor=i; sync(false); });
+      boardEl.appendChild(b); cellBtns[i]=b; } }
+  function buildLabels(){ const cl=document.getElementById('colLabels'), rl=document.getElementById('rowLabels');
+    for(let c=1;c<=COLS;c++){const s=document.createElement('span');s.textContent=c;cl.appendChild(s);}
+    for(let r=1;r<=ROWS;r++){const s=document.createElement('span');s.textContent=r;rl.appendChild(s);} }
+  function render(){
+    for(let i=0;i<TOTAL;i++){ const b=cellBtns[i];
+      const rev=revealed[i], fl=flagged[i], mn=mines&&mines[i];
+      b.className='cell'+(rev?' revealed':'')+(fl?' flag':'')+(rev&&mn?' mine':'')+(i===cursor?' cursor':'')+
+        (rev&&!mn&&count[i]>0?' n'+count[i]:'');
+      let label;
+      if(rev&&mn){ b.innerHTML='<i class="ti ti-bomb" aria-hidden="true"></i>'; label='지뢰'; }
+      else if(fl){ b.innerHTML='<i class="ti ti-flag-3" aria-hidden="true"></i>'; label='깃발'; }
+      else if(rev&&count[i]>0){ b.textContent=count[i]; label='숫자 '+count[i]; }
+      else if(rev){ b.textContent=''; label='빈 칸'; }
+      else { b.textContent=''; label='미공개'; }
+      b.setAttribute('aria-label',coord(i)+', '+label+(i===cursor?', 현재 위치':''));
+      b.tabIndex=(i===cursor)?0:-1;   // 로빙 탭인덱스: 커서 셀만 탭 대상
+      b.disabled=false;
+    }
+    updateHud(); renderPad();
+  }
+  function updateHud(){ document.getElementById('mineN').textContent=mineLeft;
+    document.getElementById('progN').textContent=openedCount()+'/'+safeArea(); }
+  function sync(focus){ render(); if(focus!==false&&cellBtns[cursor]){ try{cellBtns[cursor].focus();}catch(e){} } }
+  function setStatus(t,phase,doSpeak){ statusText.textContent=t; if(phase)statusEl.dataset.phase=phase; if(doSpeak!==false)announce(t); }
+
+  /* ===== 타이머 ===== */
+  function startTimer(){ startTs=Date.now(); timerId=setInterval(()=>{document.getElementById('timeN').textContent=elapsed();},1000); }
+  function stopTimer(){ if(timerId)clearInterval(timerId); timerId=null; }
+  function elapsed(){ return startTs?Math.floor((Date.now()-startTs)/1000):0; }
+
+  /* ===== 새 게임 ===== */
+  function newGame(){ mineN=parseInt(diffSel.value,10)||6; mineLeft=mineN;
+    mines=null; count=new Array(TOTAL).fill(0);
+    revealed=new Array(TOTAL).fill(false); flagged=new Array(TOTAL).fill(false);
+    cursor=0; over=false; won=false; firstDone=false; stopTimer(); startTs=null;
+    document.getElementById('timeN').textContent='0';
+    document.getElementById('progN').textContent='0/'+safeArea();
+    statusEl.dataset.phase='play';
+    render();
+    setStatus('새 게임. 지뢰 '+mineN+'개. 방향키로 옮기고 F1로 여세요.','play');
+  }
+
+  /* ===== 승패 연출(핀) ===== */
+  function wait(ms){ return new Promise(r=>setTimeout(r,ms)); }
+  async function padPulse(){ if(!dpConnected||!sdk)return; const fin=encodeFrame(buildFrame());
+    try{ for(let i=0;i<3;i++){ sdk.displayAllUp&&sdk.displayAllUp(); await wait(80);
+      sdk.displayAllDown&&sdk.displayAllDown(); await wait(60); } sdk.displayGraphicData(fin); sdk.displayTextData(brailleLine()); }catch(e){} }
+
+  /* ===== DotPad ===== */
+  function handleDotPadKey(keyCode){ if(!KeyCodes)return;
+    if(over||won){ if(keyCode===KeyCodes.KeyFunction1||keyCode===KeyCodes.LPF1) newGame();
+      else if(keyCode===KeyCodes.KeyFunction4) readBoard(); else readStatus(); return; }
+    switch(keyCode){
+      case KeyCodes.PanningRight: panMove(1); break;
+      case KeyCodes.PanningLeft:  panMove(-1); break;
+      case KeyCodes.KeyFunction1: openAt(cursor); break;
+      case KeyCodes.KeyFunction2: toggleFlag(cursor); break;
+      case KeyCodes.KeyFunction3: readCell(); break;
+      case KeyCodes.KeyFunction4: readBoard(); break;
+      case KeyCodes.PanningAll:   help(); break;
+      case KeyCodes.LPF1:         newGame(); break;
+      case KeyCodes.RPF4:         readStatus(); break;
+    } }
+  async function loadSDK(){ try{ const m=await import('./dotpad-sdk/DotPadSDK-3.0.0.js');
+    KeyCodes=m.KeyCodes; DataCodes=m.DataCodes; sdk=new m.DotPadSDK(); scanner=new m.DotPadScanner();
+    sdk.setCallBack((device,code)=>{ if(code===DataCodes.Connected){ dpConnected=true; setDpUI(true);
+        setTimeout(()=>{try{sdk.displayAllDown();setTimeout(renderPad,300);}catch(e){}},200); }
+      else if(code===DataCodes.Disconnected){ dpConnected=false; setDpUI(false); } },
+      (device,keyCode)=>handleDotPadKey(keyCode)); return true; }catch(e){ return false; } }
+  function setDpUI(on){ dpBtn.dataset.on=on?'1':'0'; document.getElementById('dpLbl').textContent=on?'닷패드 연결됨':'닷패드 연결';
+    if(on)announce('닷패드가 연결됐어요. 패닝으로 옮기고 F1로 여세요.'); }
+  async function connectDotPad(){
+    if(!navigator.bluetooth){ setStatus('이 브라우저는 블루투스를 지원하지 않아요. 크롬이나 엣지에서 열어 주세요.','',true); return; }
+    if(!sdk){ loadSDK(); setStatus('닷패드 준비 중이에요. 잠시 후 한 번 더 눌러 주세요.','',true); return; }
+    try{ let dev=null;
+      try{ dev=await navigator.bluetooth.requestDevice({filters:[{namePrefix:'DotPad'},{namePrefix:'KM2-'},{namePrefix:'KM3-'},{namePrefix:'DPK'},{namePrefix:'DMI'}],optionalServices:[scanner.DOTPAD_SERVICE]}); }
+      catch(e){ if(e.name==='NotFoundError'){ dev=await navigator.bluetooth.requestDevice({acceptAllDevices:true,optionalServices:[scanner.DOTPAD_SERVICE]}); } else throw e; }
+      if(dev){ setStatus('닷패드에 연결 중…','',false); await sdk.connectBleDevice(dev); }
+    }catch(e){ if(e.name!=='NotFoundError') setStatus('닷패드 연결 실패: '+(e.message||e.name),'',false); } }
+
+  /* ===== 임베드 postMessage ===== */
+  function postMsg(type,extra){ try{ window.parent.postMessage(Object.assign({source:'dotarcade',type},extra||{}),'*'); }catch(e){} }
+
+  /* ===== 키보드 ===== */
+  document.addEventListener('keydown',(ev)=>{ const k=ev.key;
+    const tn=ev.target&&ev.target.tagName;
+    if(tn==='SELECT'||tn==='INPUT'||tn==='TEXTAREA') return;      // 폼 컨트롤은 자체 처리
+    if(tn==='BUTTON'&&(k==='Enter'||k===' ')) return;            // 버튼은 네이티브 클릭에 위임(이중 발화 방지)
+    if(k==='ArrowRight'){moveCursor(0,1);ev.preventDefault();return;}
+    if(k==='ArrowLeft'){moveCursor(0,-1);ev.preventDefault();return;}
+    if(k==='ArrowUp'){moveCursor(-1,0);ev.preventDefault();return;}
+    if(k==='ArrowDown'){moveCursor(1,0);ev.preventDefault();return;}
+    if(k==='Enter'||k===' '){ if(over||won) newGame(); else openAt(cursor); ev.preventDefault(); return; }
+    if(k==='f'||k==='F'||k==='ㄹ'){ toggleFlag(cursor); ev.preventDefault(); return; }
+    if(k==='c'||k==='C'||k==='ㅊ'){ readCell(); ev.preventDefault(); return; }
+    if(k==='r'||k==='R'||k==='ㄱ'){ readStatus(); ev.preventDefault(); return; }
+    if(k==='b'||k==='B'||k==='ㅠ'){ readBoard(); ev.preventDefault(); return; }
+    if(k==='h'||k==='H'||k==='?'||k==='ㅗ'){ help(); ev.preventDefault(); return; }
+    if(k==='n'||k==='N'||k==='ㅜ'){ newGame(); ev.preventDefault(); return; }
+  });
+
+  /* ===== 버튼 바인딩 ===== */
+  document.getElementById('openBtn').addEventListener('click',()=>{ if(over||won){newGame();} else {openAt(cursor);} const b=cellBtns[cursor]; if(b)try{b.focus();}catch(e){} });
+  document.getElementById('flagBtn').addEventListener('click',()=>{ toggleFlag(cursor); const b=cellBtns[cursor]; if(b)try{b.focus();}catch(e){} });
+  document.getElementById('newBtn').addEventListener('click',newGame);
+  diffSel.addEventListener('change',()=>{ newGame(); });
+  dpBtn.addEventListener('click',connectDotPad);
+  soundBtn.addEventListener('click',()=>{ soundOn=!soundOn; soundBtn.setAttribute('aria-pressed',String(soundOn));
+    soundBtn.innerHTML='<i class="ti '+(soundOn?'ti-volume':'ti-volume-off')+'" aria-hidden="true"></i>';
+    soundBtn.setAttribute('aria-label',soundOn?'음성 켜짐, 누르면 끔':'음성 꺼짐, 누르면 켬');
+    if(soundOn)announce('음성을 켰어요.'); else if(window.TW_TTS)TW_TTS.stop(); });
+  pinToggle.addEventListener('click',()=>{ const on=pinwrap.classList.toggle('show');
+    pinToggle.setAttribute('aria-pressed',String(on));
+    pinToggle.setAttribute('aria-label',on?'핀 미리보기 숨기기':'핀 미리보기 보기');
+    pinToggle.innerHTML='<i class="ti '+(on?'ti-eye-off':'ti-eye')+'" aria-hidden="true"></i>';
+    if(on)drawPin(); });
+
+  /* ===== 시작 ===== */
+  buildLabels(); buildCells(); newGame();
+  if(params.get('preview')==='1'){ pinwrap.classList.add('show'); pinToggle.setAttribute('aria-pressed','true'); drawPin(); }
+  window.addEventListener('load',()=>{ postMsg('ready'); });
+  window.getDotpadFrame=()=>encodeFrame(buildFrame());   // 호스트/프리뷰용
+})();
+</script>
+</body>
+</html>
