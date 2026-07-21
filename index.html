@@ -100,10 +100,14 @@
   .sr-only{ position:absolute; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; border:0; }
   @media (prefers-reduced-motion: reduce){ *{ transition:none!important; } }
   /* ===== 플레이 배경(광산 씬) — 접근성: 강한 스크림 + 어두운 유리 패널로 대비 유지, 토글 가능 ===== */
-  body.bg-on{ --bg:#140f0a; --panel:#1e1712; --ink:#F3ECE2; --ink-soft:#C9B79E; --line:#3A2F24;
+  body.bg-on{ --bg:#140f0a; --panel:#1e1712; --ink:#F3ECE2; --ink-soft:#E0D2BC; --line:#3A2F24;
     --dot-orange:#FF7A1A; --dot-orange-soft:#FF9440; --pin-up:#F3B24B; --pin-down:#3A3128; }
   body.bg-on::before{ content:""; position:fixed; inset:0; z-index:-1;
     background:linear-gradient(rgba(8,6,4,.60),rgba(8,6,4,.80)), url('assets/bg-mine.jpg') center/cover no-repeat; }
+  body.bg-on .boardwrap{ background:rgba(16,12,8,.94); border:1px solid rgba(243,236,226,.14);
+    border-radius:16px; padding:12px; }   /* 밝은 배경(랜턴) 위에서도 열린 칸 숫자 대비 보장 */
+  body.bg-on .statusbar[data-phase="lose"]{ color:#FF6B6B; }
+  body.bg-on .statusbar[data-phase="win"]{ color:#7CD98A; }
   body.bg-on .stat, body.bg-on .statusbar, body.bg-on .help, body.bg-on select, body.bg-on .btn{
     background:rgba(30,23,18,.74); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); border-color:rgba(243,236,226,.16); }
   body.bg-on .btn:hover{ background:rgba(48,37,26,.9); }
