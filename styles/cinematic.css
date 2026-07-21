@@ -426,13 +426,22 @@ main { position: relative; z-index: 1; flex: 1 1 auto; display: flex; min-height
 .status-message.success::before { content: "✦ "; color: var(--game-gold); margin-right: 2px; }
 .status-message.error::before { content: "› "; color: var(--game-cyan); margin-right: 2px; }
 
-/* Play actions — stacked, importance top to bottom, key hints aligned right */
+/* Play actions — one primary action, everything else demoted to a quiet
+   pill row. The whole game is arrows + one confirm; the controls read
+   that way now. */
 .action-bar {
   flex: 0 0 auto;
-  display: grid; grid-template-columns: 1fr; gap: 8px;
+  display: flex; flex-direction: column; gap: 9px;
 }
-.action-bar .btn.act { flex-direction: row; justify-content: flex-start; min-height: 52px; padding: 10px 15px; text-align: left; }
+.action-bar .btn.primary.act { justify-content: flex-start; min-height: 56px; padding: 12px 16px; font-size: 16px; text-align: left; }
 .action-bar .btn.act .btn-key { margin-inline-start: auto; }
+.quick-row { display: flex; gap: 8px; }
+.quick-row .mini-btn { flex: 1 1 0; justify-content: center; min-height: 44px; padding: 8px 10px; gap: 6px; }
+.quick-row .mini-btn .ico { width: 16px; height: 16px; flex: 0 0 auto; }
+.quick-row .btn-key {
+  font: 800 10.5px/1 inherit; padding: 3px 5px; border-radius: 6px;
+  border: 1px solid rgba(255,255,255,.22); background: rgba(0,0,0,.25); color: inherit; opacity: .72;
+}
 
 /* Panel footer — the keyboard one-liner and the two utility drawers,
    pinned to the bottom of the column behind a quiet divider. */

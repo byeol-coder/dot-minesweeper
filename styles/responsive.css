@@ -61,11 +61,10 @@
   .search-board { height: auto; width: min(100%, 620px); }
   .quest-panel { padding: 13px 14px; }
 
-  .action-bar { grid-template-columns: 1fr 1fr; }
-  .action-bar .btn.act { flex-direction: column; justify-content: center; gap: 5px; min-height: 64px; text-align: center; }
-  .action-bar .btn.act .btn-key { margin-inline-start: 0; }
-  .board-help { display: none; }
-  .quest-foot { justify-content: flex-end; border-top: 0; padding-top: 0; }
+  .action-bar .btn.primary.act { min-height: 54px; }
+  .quick-row .mini-btn .btn-key { display: none; } /* touch-first: hide key hints */
+  .board-help { display: block; font-size: 11.5px; }
+  .quest-foot { align-items: center; }
 
   .channel-row { grid-template-columns: 1fr; }
   .scene-card .result-art { aspect-ratio: 4 / 3; }

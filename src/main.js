@@ -349,13 +349,20 @@ import { ACTION } from "./input/actions.js";
       button.setAttribute("aria-label", currentLang === "en" ? `Row ${row + 1}, column ${col + 1}` : `${row + 1}행 ${col + 1}열`);
       button.dataset.index = String(index);
       button.innerHTML = `<span class="pin-pattern${isTarget ? " target-pattern" : ""}" aria-hidden="true">${spotPattern(isTarget)}</span>`;
+      // One gesture vocabulary for touch/mouse: tapping a stone selects it,
+      // tapping the already-selected stone confirms it. (Replaces the old
+      // separate double-click, which was undiscoverable and fired the
+      // wrong-answer path twice on a fast double tap.)
       button.addEventListener("click", () => {
+        if (index === state.cursorIndex && !state.stageComplete) {
+          checkCurrent();
+          return;
+        }
         state.cursorIndex = index;
         renderBoard(); renderTechnicalPreview(); sendFrame();
         readCurrent(false);
         $(".spot.selected")?.focus({ preventScroll: true });
       });
-      button.addEventListener("dblclick", checkCurrent);
       rowWrap.appendChild(button);
     }
   }
@@ -407,11 +414,11 @@ import { ACTION } from "./input/actions.js";
   function directionHint() {
     const cur = coordinates(state.cursorIndex);
     const target = coordinates(state.targetIndex);
-    const vertical = target.row < cur.row ? (currentLang === "en" ? "up" : "위") : target.row > cur.row ? (currentLang === "en" ? "down" : "아래") : "";
+    const vertical = target.row < cur.row ? (currentLang === "en" ? "up" : "위쪽") : target.row > cur.row ? (currentLang === "en" ? "down" : "아래쪽") : "";
     const horizontal = target.col < cur.col ? (currentLang === "en" ? "left" : "왼쪽") : target.col > cur.col ? (currentLang === "en" ? "right" : "오른쪽") : "";
     if (!vertical && !horizontal) return currentLang === "en" ? "The light is at the selected spot." : "빛은 지금 선택한 자리에 있어요.";
     if (currentLang === "en") return `The light is ${[vertical, horizontal].filter(Boolean).join(" and ")} of the selected spot.`;
-    return `빛은 지금 선택한 자리보다 ${[vertical, horizontal].filter(Boolean).join("쪽 ")}쪽에 있어요.`;
+    return `빛은 지금 선택한 자리보다 ${[vertical, horizontal].filter(Boolean).join(" ")}에 있어요.`;
   }
 
   function exactHint() {
@@ -925,11 +932,11 @@ import { ACTION } from "./input/actions.js";
     $("#homeMeta").textContent = "Easy difficulty · about 3 min · DotPad and voice guide supported";
     setLabel("#tutorialBtn", "Learn from the beginning");
     setLabel("#quickStartBtn", "Quick start");
-    $("#boardHelp").textContent = "Move with the arrow keys and press Enter to check. Press Space to hear the current position.";
+    $("#boardHelp").textContent = "Tap a stone to select it, tap it again to check. You can also move with the arrow keys and press Enter.";
     setLabel("#checkBtn", "Check this spot");
-    setLabel("#readBtn", "Hear position");
+    setLabel("#readBtn", "Listen");
     setLabel("#hintBtn", "Hint");
-    setLabel("#restartBtn", "Restart");
+    setLabel("#restartBtn", "Retry");
     setLabel("#helpBtn", "Controls");
     setLabel("#tactileBtn", "Tactile board");
     setLabel("#tutorialReplayBtn", "Replay");

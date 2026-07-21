@@ -123,24 +123,26 @@
               <span class="btn-label">이곳 확인</span>
               <kbd class="btn-key">Enter</kbd>
             </button>
-            <button class="btn secondary act" id="readBtn" type="button">
-              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM16 8a5 5 0 010 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span class="btn-label">현재 위치 듣기</span>
-              <kbd class="btn-key">Space</kbd>
-            </button>
-            <button class="btn utility act" id="hintBtn" type="button">
-              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 013.5 10.9c-.6.4-.9 1-.9 1.6H9.4c0-.6-.3-1.2-.9-1.6A6 6 0 0112 3z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span class="btn-label">힌트</span>
-              <kbd class="btn-key">H</kbd>
-            </button>
-            <button class="btn ghost act" id="restartBtn" type="button">
-              <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v5h5M20 20v-5h-5M19 9a7.5 7.5 0 00-13-3L4 9m1 6a7.5 7.5 0 0013 3l2-3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
-              <span class="btn-label">다시 시작</span>
-              <kbd class="btn-key">R</kbd>
-            </button>
+            <div class="quick-row" role="group" aria-label="보조 조작">
+              <button class="mini-btn" id="readBtn" type="button">
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9zM16 8a5 5 0 010 8" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="btn-label">듣기</span>
+                <kbd class="btn-key">Space</kbd>
+              </button>
+              <button class="mini-btn" id="hintBtn" type="button">
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 013.5 10.9c-.6.4-.9 1-.9 1.6H9.4c0-.6-.3-1.2-.9-1.6A6 6 0 0112 3z" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="btn-label">힌트</span>
+                <kbd class="btn-key">H</kbd>
+              </button>
+              <button class="mini-btn" id="restartBtn" type="button">
+                <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 4v5h5M20 20v-5h-5M19 9a7.5 7.5 0 00-13-3L4 9m1 6a7.5 7.5 0 0013 3l2-3" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                <span class="btn-label">다시</span>
+                <kbd class="btn-key">R</kbd>
+              </button>
+            </div>
           </div>
           <div class="quest-foot">
-            <p class="board-help" id="boardHelp">화살표로 선택 위치를 옮기고 Enter로 확인하세요. Space를 누르면 현재 위치를 들을 수 있어요.</p>
+            <p class="board-help" id="boardHelp">돌을 누르면 선택, 한 번 더 누르면 확인돼요. 화살표로 이동, Enter로 확인할 수도 있어요.</p>
             <div class="mission-tools">
               <button class="icon-btn" id="helpBtn" type="button" aria-haspopup="dialog">
                 <svg class="ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 9a2.8 2.8 0 115.3 1.2c-.5 1-1.7 1.4-2.2 2.2-.2.3-.3.7-.3 1.1M12 17.5h.01" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="12" cy="12" r="9.2" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
