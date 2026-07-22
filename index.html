@@ -249,9 +249,12 @@
   const safeArea=()=>TOTAL-mineN;
 
   // speak: 게임 음성(TW_TTS)만. 커서 이동은 버튼 포커스 라벨이 스크린리더를 담당 → speak 사용(라이브 영역 미갱신, 중복 낭독 방지).
+  var USE_BROWSER_VOICE = /(^|\.)github\.io$/.test(location.hostname);  // 정적 배포(서버 음성 없음): 브라우저 음성 직접 — iframe 임베드에서도 동작(tts.js는 iframe서 폴백 차단하므로 우회)
+  function speakBrowser(t){ try{ if(window.speechSynthesis){ var u=new SpeechSynthesisUtterance(t); u.lang='ko-KR'; u.rate=1.05; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); } }catch(e){} }
   function speak(t){ if(!soundOn) return;
+    if(USE_BROWSER_VOICE){ speakBrowser(t); return; }
     try{ if(window.TW_TTS){ TW_TTS.speak(t); return; } }catch(e){}
-    try{ if(window.speechSynthesis){ var u=new SpeechSynthesisUtterance(t); u.lang='ko-KR'; u.rate=1.05; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); } }catch(e){} }
+    speakBrowser(t); }
   // announce: 포커스가 이동하지 않는 이벤트(열기 결과·깃발·현황·판 읽기·상태) → 라이브 영역(polite) + 게임 음성.
   function announce(t){ liveEl.textContent=t; speak(t); }
   if(window.TW_TTS){ try{ TW_TTS.setLang('ko'); TW_TTS.config({allowSpeechFallback:true});
@@ -491,7 +494,7 @@
   soundBtn.addEventListener('click',()=>{ soundOn=!soundOn; soundBtn.setAttribute('aria-pressed',String(soundOn));
     soundBtn.innerHTML='<i class="ti '+(soundOn?'ti-volume':'ti-volume-off')+'" aria-hidden="true"></i>';
     soundBtn.setAttribute('aria-label',soundOn?'음성 켜짐, 누르면 끔':'음성 꺼짐, 누르면 켬');
-    if(soundOn)announce('음성을 켰어요.'); else if(window.TW_TTS)TW_TTS.stop(); });
+    if(soundOn)announce('음성을 켰어요.'); else { try{ if(window.TW_TTS)TW_TTS.stop(); }catch(e){} try{ if(window.speechSynthesis)window.speechSynthesis.cancel(); }catch(e){} } });
   document.getElementById('bgBtn').addEventListener('click',()=>{ const on=document.body.classList.toggle('bg-on');
     const b=document.getElementById('bgBtn'); b.setAttribute('aria-pressed',String(on));
     b.setAttribute('aria-label',on?'배경 켜짐, 누르면 끔':'배경 꺼짐, 누르면 켬');
