@@ -212,7 +212,7 @@
   </div>
 </div>
 
-<script src="/tts.js"></script>
+<script src="./tts.js"></script>
 <script>
 (function(){
   "use strict";
@@ -249,10 +249,13 @@
   const safeArea=()=>TOTAL-mineN;
 
   // speak: 게임 음성(TW_TTS)만. 커서 이동은 버튼 포커스 라벨이 스크린리더를 담당 → speak 사용(라이브 영역 미갱신, 중복 낭독 방지).
-  function speak(t){ if(soundOn && window.TW_TTS) TW_TTS.speak(t); }
+  function speak(t){ if(!soundOn) return;
+    try{ if(window.TW_TTS){ TW_TTS.speak(t); return; } }catch(e){}
+    try{ if(window.speechSynthesis){ var u=new SpeechSynthesisUtterance(t); u.lang='ko-KR'; u.rate=1.05; window.speechSynthesis.cancel(); window.speechSynthesis.speak(u); } }catch(e){} }
   // announce: 포커스가 이동하지 않는 이벤트(열기 결과·깃발·현황·판 읽기·상태) → 라이브 영역(polite) + 게임 음성.
   function announce(t){ liveEl.textContent=t; speak(t); }
-  if(window.TW_TTS){ try{ TW_TTS.setLang('ko'); TW_TTS.config({allowSpeechFallback:true}); }catch(e){} }
+  if(window.TW_TTS){ try{ TW_TTS.setLang('ko'); TW_TTS.config({allowSpeechFallback:true});
+    if(/(^|\.)github\.io$/.test(location.hostname)) TW_TTS.config({serverFirst:false}); }catch(e){} }
 
   /* ===== 이웃 ===== */
   function forNb(i,fn){ const[r,c]=rc(i);
